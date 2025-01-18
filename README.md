@@ -3,9 +3,14 @@ A dog treat dispencer for dogs that suffer from anxiety when their owner leaves 
 The dispencer can be controlled from afar by exposing the web server through the router's NAT or by using a service like ngrok.
 
 Setup is:
+
 ESP32-C3 w/ mini LCD (LCD SDA pin 5, SCL pin 6)
+
 Micro Servo (connected to pin 2)
+
 The dispencer - yours will probably be better than mine (I don't have 3D printer so I used an old plastic bottle).
+
+
 
 Code includes a machanism for uploading files to the SPIFFS, but first you will have to manually upload the index.html and admin.html files using mkspiffs & esptool or similar methods.
 It also includes a mechanism to upload a compiled sketch using the web server (admin.html).
