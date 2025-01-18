@@ -362,7 +362,6 @@ void setup(void) {
   
   writeString(lastPart.c_str());
 
-  Serial.println("Setup() Done!2");
 }
 
 void loop(void) {
