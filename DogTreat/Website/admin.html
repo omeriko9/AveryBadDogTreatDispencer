@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPIFFS Manager</title>
+</head>
+<body>
+    <h1>SPIFFS File Manager</h1>
+
+    <!-- SPIFFS Upload -->
+    <label for="fileUpload">Upload a file to SPIFFS:</label><br>
+    <input type="file" id="fileUpload" name="fileUpload">
+    <br><br>
+
+    <!-- Firmware Upload -->
+    <label for="firmwareUpload">Upload firmware:</label><br>
+    <input type="file" id="firmwareUpload" name="firmwareUpload">
+    <hr>
+
+    <h2>Files in SPIFFS:</h2>
+    <ul id="fileList"></ul>
+
+    <script>
+        // Fetch and display files
+        async function fetchFiles() {
+            const response = await fetch('/list');
+            const files = await response.json();
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            files.forEach(file => {
+                const li = document.createElement('li');
+                li.innerHTML = `${file.name} (${file.size} bytes) 
+                    <button onclick="downloadFile('${file.name}')">Download</button>
+                    <button onclick="deleteFile('${file.name}')">Delete</button>`;
+                fileList.appendChild(li);
+            });
+        }
+
+        // Download file
+        function downloadFile(fileName) {
+            window.location.href = `/download?file=${fileName}`;
+        }
+
+        // Delete file
+        async function deleteFile(fileName) {
+            const response = await fetch(`/delete?file=${fileName}`, { method: 'GET' });
+            const result = await response.text();
+            alert(result);
+            fetchFiles();
+        }
+
+        // Handle SPIFFS upload
+        const fileUpload = document.getElementById('fileUpload');
+        fileUpload.addEventListener('change', async () => {
+            const formData = new FormData();
+            formData.append('fileUpload', fileUpload.files[0]);
+
+            const response = await fetch('/upload', { method: 'POST', body: formData });
+            const result = await response.text();
+            alert(result);
+            fetchFiles();
+        });
+
+        // Handle Firmware upload
+        const firmwareUpload = document.getElementById('firmwareUpload');
+        firmwareUpload.addEventListener('change', async () => {
+            const formData = new FormData();
+            formData.append('firmwareUpload', firmwareUpload.files[0]);
+
+            const response = await fetch('/update', { method: 'POST', body: formData });
+            const result = await response.text();
+            alert(result);
+
+            // Optionally, suggest to refresh the page or provide a message if a restart occurs
+            if (result.includes("Rebooting")) {
+                alert("The device will now reboot to apply the new firmware.");
+            }
+        });
+
+        // Initial file fetch
+        fetchFiles();
+    </script>
+</body>
+</html>
