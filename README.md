@@ -17,5 +17,8 @@ We thought of having some sort of contraption that will detect him getting close
 
 
 There is, a very rough prototype that demonstrates the idea mechanically:
-https://github.com/user-attachments/assets/ba94fd38-5359-41f0-9551-817681e53116
+
+
+
+https://github.com/user-attachments/assets/4db81ff4-ab17-4e9f-b930-bc8b366d24ab
 
