@@ -1,40 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treat Button</title>
+    <title>שלום צליל</title>
     <style>
         body {
             margin: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #89f7fe, #66a6ff);
+            color: #333;
+            text-align: center;
         }
-        button {
-            padding: 20px 40px;
-            font-size: 24px;
+
+        h1 {
+            font-size: 48px;
+            margin-bottom: 40px;
             color: #fff;
-            background-color: #007BFF;
-            border: none;
-            border-radius: 10px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        button {
+            all: unset; /* Resets all browser-specific styles for button */
+            display: inline-block;
+            padding: 30px 60px;
+            font-size: 36px;
+            font-family: inherit; /* Ensures the button uses the same font as the body */
+            color: #fff;
+            background: linear-gradient(45deg, #ff6b6b, #f94d94);
+            border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease-in-out;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
         }
+
         button:hover {
-            background-color: #0056b3;
+            background: linear-gradient(45deg, #f94d94, #ff6b6b);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
         }
+
         button:active {
-            transform: scale(0.98);
+            transform: scale(0.95);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 200%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: skewX(-45deg);
+            transition: all 0.6s ease-in-out;
+        }
+
+        button:hover::before {
+            left: 150%;
+        }
+
+        button span {
+            font-family: inherit; /* Ensures the span inherits the same font */
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        button:active span {
+            animation: pop 0.3s ease-in-out;
         }
     </style>
 </head>
-<body>
-    <button id="treatButton">Treat!</button>
+<body dir="rtl">
+    <h1>שלום צליל</h1>
+    <button id="treatButton">
+        <span>צ'ופר לניאו</span>
+    </button>
 
     <script>
         document.getElementById('treatButton').addEventListener('click', function () {

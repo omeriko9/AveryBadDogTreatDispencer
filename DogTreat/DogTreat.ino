@@ -5,6 +5,7 @@
 #include <WebServer.h>
 #include <SPIFFS.h>
 #include <WiFiManager.h>
+#include <time.h>
 
 
 #ifdef U8X8_HAVE_HW_SPI
@@ -32,6 +33,10 @@ bool increasing = true;
 
 WebServer server(8080);
 
+// NTP Server settings
+const char* ntpServer = "pool.ntp.org";
+const long gmtOffset_sec = 3600*2;   // Adjust according to your timezone (e.g., 3600 for GMT+1)
+const int daylightOffset_sec = 3600; // Adjust for daylight saving time
 
 const int speakerPinPositive = 3; // Positive terminal of the piezo speaker
 const int speakerPinNegative = 4; // Simulated ground
@@ -41,12 +46,16 @@ int melody[] = {262, 294, 330, 349, 392, 440, 494, 523}; // Notes (C4 to C5 in H
 int noteDurations[] = {100, 100, 100, 100, 100, 100, 100, 100}; // Duration of each note in ms
 
 
-
-// HTML served inline
-const char* adminPage = R"rawliteral(
-
-)rawliteral";
-
+void printLocalTime() {
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Failed to obtain time");
+    return;
+  }
+  Serial.printf("Current Time: %02d:%02d:%02d %02d/%02d/%04d\n",
+                timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec,
+                timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
+}
 
 void u8g2_prepare(void) {
   u8g2.setFont(u8g2_font_8x13B_tf);
@@ -69,6 +78,8 @@ String listFiles() {
     json += "]";
     return json;
 }
+
+
 
 // Handle file listing
 void handleList() {
@@ -160,6 +171,13 @@ void playT()
     playTone(melody[i], noteDurations[i]);
     delay(50); // Short pause between notes
   }
+
+  int BUZZER_PIN = 1;
+
+  digitalWrite(BUZZER_PIN, HIGH); // Turn on the buzzer
+  delay(1000);                    // Wait 1 second
+  digitalWrite(BUZZER_PIN, LOW);  // Turn off the buzzer
+  delay(1000);                    // Wait 1 second
 }
 
 void playTone(int frequency, int duration) {
@@ -189,17 +207,33 @@ void writeString(String str)
   u8g2.sendBuffer();
 }
 
-
+void Log(String str)
+{
+  File testFile = SPIFFS.open("/log.txt", FILE_WRITE);
+  if (testFile) {
+      
+      struct tm timeinfo;
+      if (getLocalTime(&timeinfo)) {
+        testFile.printf("[Current Time: ]%02d:%02d:%02d %02d/%02d/%04d]: ",
+                timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec,
+                timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900);
+      }
+      
+      testFile.println(str);
+      testFile.close();
+      
+  } 
+}
 
 void handleTreat() {
 
     playT();
-
+    Log("Treat given");
     Serial.println("Releasing Treat...");
     server.send(200, "text/plain", "Treat received!");
     int new_angle = 30;
     myServo.write(50);
-    delay(300);
+    delay(250);
     myServo.write(150);
 
 }
@@ -318,6 +352,12 @@ void setup(void) {
     file = root.openNextFile();
   } 
 
+  // Initialize and set time from NTP
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  Serial.println("Time synchronized with NTP server.");
+
+
+  // Init server
   server.on("/", HTTP_GET, handleRoot);
   server.on("/admin.html", HTTP_GET, handleAdmin);
   server.on("/list", HTTP_GET, handleList);
@@ -361,6 +401,10 @@ void setup(void) {
   u8g2.begin();
   
   writeString(lastPart.c_str());
+
+  // Display the current time
+  Serial.println("Current time:");
+  printLocalTime();
 
 }
 
